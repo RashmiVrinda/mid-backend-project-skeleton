@@ -13,8 +13,9 @@ import { z } from "zod";
  * - throws a ZodError when a type or condition is not met
  */
 export const EventListQuery = z.object({
-    page: z.coerce.number().int().min(0).default(0),
-    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+    page: z.coerce.number().int().nonnegative().default(0),
+    pageSize: z.coerce.number().int().positive().default(20),
+    q: z.string().optional(), // Add this line to allow search terms
 });
 
 /**
