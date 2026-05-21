@@ -16,7 +16,8 @@ const swaggerOptions = {
             description: "API documentation",
         },
     },
-    apis: ["./src/routers/**/*.js", "./src/routers/*.js"],
+    apis: ["./src/routers/**/*.js", "./src/routers/*.js","./api/src/routers/**/*.js",
+        "./api/src/routers/*.js"],
 };
 
 /**
