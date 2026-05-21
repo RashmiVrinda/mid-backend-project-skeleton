@@ -6,6 +6,7 @@ import {
   patchEvent,
   removeEvent,
 } from "#controllers/events.js";
+import { authenticateToken, isAdmin } from "../middlewares/index.js";
 
 const eventsRouter = express.Router();
 
@@ -75,7 +76,6 @@ const eventsRouter = express.Router();
  *           type: string
  *         required: false
  *         description: Search by title or description
- *
  *       - in: query
  *         name: page
  *         schema:
@@ -84,7 +84,6 @@ const eventsRouter = express.Router();
  *           default: 0
  *         required: false
  *         description: Page number (zero-based)
- *
  *       - in: query
  *         name: pageSize
  *         schema:
@@ -93,31 +92,9 @@ const eventsRouter = express.Router();
  *           default: 20
  *         required: false
  *         description: Number of items per page
- *
  *     responses:
  *       200:
  *         description: Events fetched successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 data:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Event'
- *                 meta:
- *                   type: object
- *                   properties:
- *                     page:
- *                       type: integer
- *                       example: 0
- *                     pageSize:
- *                       type: integer
- *                       example: 20
- *                     total:
- *                       type: integer
- *                       example: 100
  */
 eventsRouter.get("/", getEvents);
 
@@ -131,19 +108,12 @@ eventsRouter.get("/", getEvents);
  *       - in: path
  *         name: id
  *         required: true
- *         description: Event ID
  *         schema:
  *           type: integer
- *           example: 1
- *
+ *         description: Event ID
  *     responses:
  *       200:
  *         description: Event fetched successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Event'
- *
  *       404:
  *         description: Event not found
  */
@@ -155,26 +125,25 @@ eventsRouter.get("/:id", getEventById);
  *   post:
  *     summary: Create a new event
  *     tags: [Events]
- *
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/EventInput'
- *
  *     responses:
  *       201:
  *         description: Event created successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Event'
- *
  *       400:
  *         description: Invalid request data
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
  */
-eventsRouter.post("/", postEvent);
+eventsRouter.post("/", authenticateToken, isAdmin, postEvent);
 
 /**
  * @swagger
@@ -182,35 +151,31 @@ eventsRouter.post("/", postEvent);
  *   patch:
  *     summary: Update an existing event
  *     tags: [Events]
- *
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         description: Event ID
  *         schema:
  *           type: integer
- *           example: 1
- *
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/EventInput'
- *
  *     responses:
  *       200:
  *         description: Event updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Event'
- *
  *       404:
- *         description: Event not found
+ *         description: Not found
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
  */
-eventsRouter.patch("/:id", patchEvent);
+eventsRouter.patch("/:id", authenticateToken, isAdmin, patchEvent);
 
 /**
  * @swagger
@@ -218,23 +183,24 @@ eventsRouter.patch("/:id", patchEvent);
  *   delete:
  *     summary: Delete an event
  *     tags: [Events]
- *
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         description: Event ID
  *         schema:
  *           type: integer
- *           example: 1
- *
  *     responses:
  *       204:
- *         description: Event deleted successfully
- *
+ *         description: Deleted successfully
  *       404:
- *         description: Event not found
+ *         description: Not found
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
  */
-eventsRouter.delete("/:id", removeEvent);
+eventsRouter.delete("/:id", authenticateToken, isAdmin, removeEvent);
 
 export default eventsRouter;

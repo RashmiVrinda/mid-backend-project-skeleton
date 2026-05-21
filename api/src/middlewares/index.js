@@ -43,7 +43,16 @@ export const authenticateToken = (req, res, next) => {
     next();
   });
 };
-
+/**
+ * Role authorization middleware.
+ * Ensures the logged-in user possesses administrative privileges.
+ */
+export const isAdmin = (req, res, next) => {
+  if (!req.user || req.user.role !== 'admin') {
+    return res.status(403).json({ error: "Access denied. Admin privileges required." });
+  }
+  next();
+};
 /**
  * Middlewares that should run after routes.
  *

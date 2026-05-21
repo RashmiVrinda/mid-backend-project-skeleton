@@ -8,8 +8,6 @@ import { authenticateToken } from "../middlewares/index.js";
 
 const router = express.Router();
 
-router.use(authenticateToken);
-
 /**
  * @swagger
  * tags:
@@ -23,11 +21,15 @@ router.use(authenticateToken);
  *   post:
  *     summary: Add item to cart
  *     tags: [Cart]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       201:
  *         description: Item added
+ *       401:
+ *         description: Access denied. No token provided.
  */
-router.post("/items", postCartItem);
+router.post("/items", authenticateToken, postCartItem);
 
 /**
  * @swagger
@@ -35,6 +37,8 @@ router.post("/items", postCartItem);
  *   delete:
  *     summary: Remove item from cart
  *     tags: [Cart]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: itemId
@@ -44,8 +48,10 @@ router.post("/items", postCartItem);
  *     responses:
  *       204:
  *         description: Item removed
+ *       401:
+ *         description: Access denied. No token provided.
  */
-router.delete("/items/:itemId", removeCartItem);
+router.delete("/items/:itemId", authenticateToken, removeCartItem);
 
 /**
  * @swagger
@@ -53,10 +59,14 @@ router.delete("/items/:itemId", removeCartItem);
  *   post:
  *     summary: Checkout the cart
  *     tags: [Cart]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       201:
  *         description: Checkout completed successfully
+ *       401:
+ *         description: Access denied. No token provided.
  */
-router.post("/checkout", postCheckout);
+router.post("/checkout", authenticateToken, postCheckout);
 
 export default router;
