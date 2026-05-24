@@ -1,26 +1,65 @@
 import express from "express";
 import {
-    getEvents,
-    getEventById,
-    postEvent,
-    patchEvent,
-    removeEvent,
+  getEvents,
+  getEventById,
+  postEvent,
+  patchEvent,
+  removeEvent,
 } from "#controllers/events.js";
+import { authenticateToken, isAdmin } from "../middlewares/index.js";
 
 const eventsRouter = express.Router();
 
 /**
- * Events router (MVC example)
+ * @swagger
+ * tags:
+ *   name: Events
+ *   description: Events management API
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Event:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           example: 1
+ *         title:
+ *           type: string
+ *           example: Tech Conference 2026
+ *         description:
+ *           type: string
+ *           example: Annual technology conference
+ *         date:
+ *           type: string
+ *           format: date-time
+ *           example: 2026-06-15T10:00:00Z
+ *         location:
+ *           type: string
+ *           example: Copenhagen
  *
- * This router demonstrates how HTTP routes are mapped to controller handlers
- * within the MVC structure used in this backend skeleton.
- *
- * Only some routes are required for the base trainee assignment.
- * Additional routes are included as OPTIONAL placeholders to illustrate
- * how the API structure may grow (for example with admin functionality).
- *
- * Optional routes should only be implemented if the trainee decides to
- * extend the project beyond the required scope.
+ *     EventInput:
+ *       type: object
+ *       required:
+ *         - title
+ *         - date
+ *       properties:
+ *         title:
+ *           type: string
+ *           example: Tech Conference 2026
+ *         description:
+ *           type: string
+ *           example: Annual technology conference
+ *         date:
+ *           type: string
+ *           format: date-time
+ *           example: 2026-06-15T10:00:00Z
+ *         location:
+ *           type: string
+ *           example: Copenhagen
  */
 
 /**
@@ -28,10 +67,15 @@ const eventsRouter = express.Router();
  * /api/events:
  *   get:
  *     summary: Get paginated list of events
- *     description: Returns a paginated list of events. Pagination is zero-based.
- *     tags:
- *       - Events
+ *     description: Returns a paginated list of events with optional search.
+ *     tags: [Events]
  *     parameters:
+ *       - in: query
+ *         name: q
+ *         schema:
+ *           type: string
+ *         required: false
+ *         description: Search by title or description
  *       - in: query
  *         name: page
  *         schema:
@@ -40,75 +84,26 @@ const eventsRouter = express.Router();
  *           default: 0
  *         required: false
  *         description: Page number (zero-based)
+ *       - in: query
+ *         name: pageSize
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 20
+ *         required: false
+ *         description: Number of items per page
  *     responses:
  *       200:
- *         description: Paginated list of events
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 data:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: integer
- *                         example: 1
- *                       price:
- *                         type: number
- *                         example: 150
- *                       currency:
- *                         type: string
- *                         example: DKK
- *                       title:
- *                         type: string
- *                         example: Live Jazz Trio
- *                       description:
- *                         type: string
- *                         example: An intimate jazz evening.
- *                       created_at:
- *                         type: string
- *                         format: date-time
- *                       updated_at:
- *                         type: string
- *                         format: date-time
- *                 meta:
- *                   type: object
- *                   properties:
- *                     page:
- *                       type: integer
- *                       example: 0
- *                     pageSize:
- *                       type: integer
- *                       example: 5
- *                     totalItems:
- *                       type: integer
- *                       example: 245
- *                     totalPages:
- *                       type: integer
- *                       example: 49
- *       400:
- *         description: Invalid query parameters
- *       500:
- *         description: Server error
+ *         description: Events fetched successfully
  */
 eventsRouter.get("/", getEvents);
 
 /**
- * OPTIONAL ROUTE PLACEHOLDER
- *
- * Demonstrates how a "get single resource" endpoint would be added.
- * Not required in the base trainee assignment unless optional scope
- * is implemented.
- *
  * @swagger
  * /api/events/{id}:
  *   get:
  *     summary: Get event by ID
- *     tags:
- *       - Events
+ *     tags: [Events]
  *     parameters:
  *       - in: path
  *         name: id
@@ -118,63 +113,78 @@ eventsRouter.get("/", getEvents);
  *         description: Event ID
  *     responses:
  *       200:
- *         description: Event found
+ *         description: Event fetched successfully
  *       404:
  *         description: Event not found
  */
 eventsRouter.get("/:id", getEventById);
 
 /**
- * OPTIONAL ROUTE PLACEHOLDER
- *
- * Example of a "create event" endpoint (typically admin functionality).
- *
  * @swagger
  * /api/events:
  *   post:
- *     summary: Create event (optional/admin)
- *     tags:
- *       - Events
+ *     summary: Create a new event
+ *     tags: [Events]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/EventInput'
  *     responses:
- *       501:
- *         description: Not implemented in base skeleton
+ *       201:
+ *         description: Event created successfully
+ *       400:
+ *         description: Invalid request data
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
  */
-eventsRouter.post("/", postEvent);
+eventsRouter.post("/", authenticateToken, isAdmin, postEvent);
 
 /**
- * OPTIONAL ROUTE PLACEHOLDER
- *
- * Example of an "update event" endpoint.
- *
  * @swagger
  * /api/events/{id}:
  *   patch:
- *     summary: Update event (optional/admin)
- *     tags:
- *       - Events
+ *     summary: Update an existing event
+ *     tags: [Events]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/EventInput'
  *     responses:
- *       501:
- *         description: Not implemented in base skeleton
+ *       200:
+ *         description: Event updated successfully
+ *       404:
+ *         description: Not found
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
  */
-eventsRouter.patch("/:id", patchEvent);
+eventsRouter.patch("/:id", authenticateToken, isAdmin, patchEvent);
 
 /**
- * OPTIONAL ROUTE PLACEHOLDER
- *
- * Example of a "delete event" endpoint.
- *
  * @swagger
  * /api/events/{id}:
  *   delete:
- *     summary: Delete event (optional/admin)
- *     tags:
- *       - Events
+ *     summary: Delete an event
+ *     tags: [Events]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -182,9 +192,15 @@ eventsRouter.patch("/:id", patchEvent);
  *         schema:
  *           type: integer
  *     responses:
- *       501:
- *         description: Not implemented in base skeleton
+ *       204:
+ *         description: Deleted successfully
+ *       404:
+ *         description: Not found
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
  */
-eventsRouter.delete("/:id", removeEvent);
+eventsRouter.delete("/:id", authenticateToken, isAdmin, removeEvent);
 
 export default eventsRouter;

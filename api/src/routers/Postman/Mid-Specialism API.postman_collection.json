@@ -1,0 +1,123 @@
+{
+  "info": {
+    "_postman_id": "fda45988-80aa-4c7c-9441-79709529eb21",
+    "name": "Mid-Specialism API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "50773404",
+    "_collection_link": "https://go.postman.co/collection/50773404-fda45988-80aa-4c7c-9441-79709529eb21?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Get Paginated Events",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/api/events",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3001",
+          "path": [
+            "api",
+            "events"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Event by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/api/events/8",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3001",
+          "path": [
+            "api",
+            "events",
+            "8"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "POST Event",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/api/events",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3001",
+          "path": [
+            "api",
+            "events"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "PATCH Event",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Updated Jazz Trio Night\",\n  \"price\": \"350.00\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3001/api/events/8",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3001",
+          "path": [
+            "api",
+            "events",
+            "8"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "DELETE Event",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/api/events/8",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3001",
+          "path": [
+            "api",
+            "events",
+            "8"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

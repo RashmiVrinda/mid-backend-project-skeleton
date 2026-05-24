@@ -15,6 +15,17 @@ const swaggerOptions = {
             version: process.env.APP_VERSION ?? "0.0.1",
             description: "API documentation",
         },
+        // --- ADD THIS COMPONENTS BLOCK TO ENABLE AUTHORIZATION ---
+        components: {
+            securitySchemes: {
+               bearerAuth: {
+                    type: "http",
+                    scheme: "bearer",
+                    bearerFormat: "JWT",
+                    description: "Enter your JWT token to access protected routes",
+                },
+            },
+        },
     },
     apis: ["./src/routers/**/*.js", "./src/routers/*.js"],
 };

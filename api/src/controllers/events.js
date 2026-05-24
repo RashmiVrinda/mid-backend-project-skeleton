@@ -66,12 +66,18 @@ import {
  */
 export async function getEvents(req, res, next) {
     try {
-        // Parse and normalize query params before calculating pagination.
-        const { page, pageSize } = EventListQuery.parse(req.query);
+        // 1. Parse and normalize query params (page, pageSize, and now q)
+        const { page, pageSize, q } = EventListQuery.parse(req.query);
         const offset = page * pageSize;
 
-        const filters = {}; // TODO (required project work): map req.query filters here
+        // 2. Map the 'q' parameter to your filters
+        // This tells the model to search for this specific text
+        const filters = {};
+        if (q) {
+            filters.q = q; 
+        }
 
+        // 3. The model handles the actual database query
         const data = await listEvents(filters, {
             limit: pageSize,
             offset,
@@ -82,6 +88,7 @@ export async function getEvents(req, res, next) {
         const totalItems = await countEvents(filters);
         const totalPages = Math.ceil(totalItems / pageSize);
 
+        // 4. Send the required Week 3 response format
         res.json({
             data,
             meta: {
@@ -95,7 +102,6 @@ export async function getEvents(req, res, next) {
         next(error);
     }
 }
-
 /**
  * OPTIONAL STRUCTURE PLACEHOLDER
  *
